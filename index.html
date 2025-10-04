@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Workout Zone Gym - Client Demo" />
+  <title>Workout Zone — Client Demo</title>
+  
+  <!-- Minimal CSS deps for visuals -->
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/font-awesome.min.css" />
+  <link rel="stylesheet" href="css/flaticon.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/workout-zone-custom.css" />
+  <style>
+    html { scroll-behavior: smooth; }
+    /* Small overrides to work without JS plugins */
+  .hero-banner { min-height: 82vh; display:flex; align-items:center; background: url('img/hero/hero-1.jpg') center/cover no-repeat; position:relative; }
+  /* Add subtle dark overlay to improve legibility */
+  .hero-banner::before { content:""; position:absolute; inset:0; background: rgba(0,0,0,0.45); z-index:0; }
+  .hero-banner .hi-text { color:#fff; position:relative; z-index:1; }
+  /* Make the gym name pop */
+  .hero-banner .hi-text h1 { color:#0891b2; text-shadow: 0 2px 8px rgba(0,0,0,0.45); font-weight:800; font-size: clamp(40px, 6vw, 72px); line-height:1.05; }
+  .hero-banner .hi-text span { display:block; font-size: clamp(16px, 2.2vw, 22px); opacity: .95; margin-bottom: .35rem; }
+  .hero-banner .hi-text p { font-size: clamp(16px, 2.2vw, 22px); max-width: 42ch; margin: .5rem 0 1.25rem; }
+  .primary-btn { font-size: 16px; padding: 12px 26px; }
+  .secondary-btn { font-size: 16px; padding: 11px 22px; border:2px solid #fff; color:#fff; border-radius:2px; display:inline-block; }
+  .secondary-btn:hover { color:#111; background:#fff; }
+  .hero-badges { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; }
+  .hero-badges .badge { display:flex; align-items:center; gap:8px; color:#fff; background: rgba(0,0,0,.35); padding:8px 12px; border-radius:20px; font-size:13px; }
+  .scroll-indicator { position:absolute; left:50%; bottom:18px; transform:translateX(-50%); color:#fff; font-size:12px; letter-spacing:.12em; opacity:.85; display:flex; flex-direction:column; align-items:center; }
+  .scroll-indicator .mouse { width:22px; height:34px; border:2px solid #fff; border-radius:14px; position:relative; margin-bottom:6px; }
+  .scroll-indicator .mouse::after { content:""; position:absolute; left:50%; top:6px; transform:translateX(-50%); width:3px; height:6px; background:#fff; border-radius:2px; animation: wheel 1.8s ease-in-out infinite; }
+  @keyframes wheel { 0%{opacity:1; transform:translate(-50%,0);} 70%{opacity:0; transform:translate(-50%,10px);} 100%{opacity:0; transform:translate(-50%,0);} }
+    .gallery-simple img { width:100%; height:260px; object-fit:cover; border-radius:2px; }
+    .section-title h2 { letter-spacing: .5px; font-size: clamp(28px, 4.2vw, 44px); }
+    .section-title span { font-size: clamp(14px, 2vw, 16px); }
+    body { font-size: 17px; }
+    .nav-menu ul { margin-bottom:0; }
+    /* Hide elements that depend on JS plugins in this demo */
+    .search-model, .canvas-open, .canvas-menu, .offcanvas-menu-wrapper { display:none !important; }
+
+    /* Simple mobile-friendly nav */
+    .header-section { position: relative; z-index: 1000; background: #111111; box-shadow: 0 2px 8px rgba(0,0,0,0.3); padding: 12px 0; }
+    .logo { display: flex; align-items: center; }
+    .logo img { max-height: 50px; width: auto; object-fit: contain; }
+    .nav-menu ul { display:flex; gap:18px; flex-wrap:wrap; align-items:center; margin-bottom: 0; }
+    .nav-menu ul li { list-style:none; }
+    .nav-menu ul li a { text-decoration:none; font-size:16px; color:#ffffff; }
+    /* Desktop: keep items on one line */
+    /* Keep all nav items in one line on desktop */
+    @media (min-width: 992px) {
+      .nav-menu ul { flex-wrap: nowrap; gap: 14px; justify-content: flex-end; }
+      .nav-menu ul li a { font-size: 15px; white-space: nowrap; }
+    }
+    /* Mobile hamburger */
+    .nav-toggle { display:none; background:transparent; border:0; width:38px; height:34px; align-items:center; justify-content:center; gap:5px; cursor:pointer; }
+    .nav-toggle span { display:block; width:22px; height:2px; background:#ffffff; transition: transform .25s ease, opacity .25s ease; }
+    @media (max-width: 991.98px) {
+      .header-section { background: #111111; padding: 16px 0; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+      .logo img { max-height: 45px; }
+      .nav-toggle { display:inline-flex; float:right; margin-top:4px; }
+      .nav-toggle span { background:#ffffff; }
+      .nav-menu ul { display:none; position:absolute; left:0; right:0; top:100%; background: rgba(17,17,17,.96); padding:12px 16px; flex-direction:column; gap:10px; border-bottom:1px solid rgba(255,255,255,.08); }
+      .nav-menu ul li a { color:#fff; font-size:16px; padding:8px 2px; display:block; }
+      body.nav-open .nav-menu ul { display:flex; }
+      /* Toggle icon animation */
+      body.nav-open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      body.nav-open .nav-toggle span:nth-child(2) { opacity:0; }
+      body.nav-open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    }
+  /* Logo size retained via media query above */
+    /* Contact form + map */
+    .contact-wrap { margin-top: 32px; }
+    .contact-form .form-control { height: 48px; border-radius: 4px; border: 1px solid #e1e1e1; box-shadow:none; }
+    .contact-form textarea.form-control { height: auto; min-height: 140px; resize: vertical; }
+    .contact-form .btn-submit { background:#0891b2; color:#fff; border:none; padding:12px 20px; border-radius:4px; font-weight:600; }
+    .contact-form .btn-submit:hover { filter: brightness(0.95); }
+    .map-embed { width:100%; min-height: 320px; border:0; border-radius: 4px; }
+
+    /* Fancy class cards */
+    .class-item { position:relative; overflow:hidden; border-radius:10px; box-shadow: 0 12px 30px rgba(0,0,0,.08); transition: transform .3s ease, box-shadow .3s ease; }
+    .class-item:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.12); }
+    .class-item .ci-pic img { width:100%; display:block; transition: transform .6s ease; }
+    .class-item:hover .ci-pic img { transform: scale(1.06); }
+    .class-item .ci-text { position:absolute; left:0; right:0; bottom:0; color:#fff; padding:16px 18px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.65) 80%); }
+    .class-item .ci-text span { display:inline-block; background:#0891b2; color:#fff; padding:4px 10px; border-radius:20px; font-size:12px; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
+    .class-item .ci-text h5, .class-item .ci-text h4 { color:#fff; margin:0; }
+
+    /* Gallery cards */
+    .gallery-card { position:relative; overflow:hidden; border-radius:10px; box-shadow: 0 12px 30px rgba(0,0,0,.08); }
+    .gallery-card img { width:100%; height:320px; object-fit:cover; display:block; transition: transform .8s ease; }
+    .gallery-card:hover img { transform: scale(1.08); }
+    .gallery-card .overlay { position:absolute; inset:0; background: linear-gradient(to top, rgba(0,0,0,.6), transparent 60%); color:#fff; opacity:0; display:flex; align-items:flex-end; padding:14px; transition: opacity .35s ease; }
+    .gallery-card:hover .overlay { opacity:1; }
+    .gallery-card .overlay h5 { margin:0; font-size:16px; font-weight:600; }
+
+    /* Reveal on scroll */
+    .reveal-up { transform: translateY(22px); opacity:0; transition: transform .7s ease, opacity .7s ease; transition-delay: var(--delay, 0ms); }
+    .reveal-up.in-view { transform: none; opacity:1; }
+
+    /* Spacing tweaks to reduce large gaps */
+    .section-title { margin-bottom: 18px; }
+    #stats.spad { padding-top: 36px; padding-bottom: 12px; }
+    #testimonials.spad { padding-top: 20px; padding-bottom: 40px; }
+    /* Optional: soften spacing on subsequent sections */
+    #pricing.spad { padding-top: 48px; padding-bottom: 56px; }
+    #faq.spad { padding-top: 40px; padding-bottom: 56px; }
+
+  /* Facilities grid (refined) */
+  .facility { position:relative; background:#111; border-radius:12px; padding:18px; color:#fff; height:100%; box-shadow:0 14px 34px rgba(0,0,0,.16); display:flex; gap:14px; align-items:flex-start; border-left:4px solid #0891b2; transition: transform .25s ease, box-shadow .25s ease; }
+  .facility:hover { transform: translateY(-4px); box-shadow:0 20px 50px rgba(0,0,0,.24); }
+  .facility .icon-chip { width:48px; height:48px; border-radius:50%; background:#0891b2; display:grid; place-items:center; flex:0 0 48px; box-shadow:0 6px 18px rgba(8,145,178,.45); }
+  .facility .icon-chip i { color:#fff; font-size:20px; }
+  .facility h6 { margin:2px 0 4px; font-weight:800; font-size:17px; letter-spacing:.2px; }
+  .facility p { margin:0; opacity:.9; font-size:14.5px; }
+
+    /* Trial CTA */
+    .trial-cta { background: linear-gradient(135deg, rgba(8,145,178,0.92), rgba(8,145,178,0.75)), url('img/banner-bg.jpg') center/cover no-repeat; color:#fff; border-radius:12px; padding:34px 22px; box-shadow:0 20px 50px rgba(0,0,0,.2); }
+    .trial-cta h3 { margin:0 0 10px; font-weight:800; }
+    .trial-cta p { margin:0 0 18px; opacity:.95; }
+    .trial-cta .cta-btn { background:#111; color:#fff; border:none; padding:12px 22px; border-radius:6px; font-weight:700; letter-spacing:.3px; }
+    .trial-cta .cta-btn:hover { filter:brightness(1.1); }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header-section">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-lg-2 col-6">
+          <div class="logo">
+            <a href="#home"><img src="img/logo.png" alt="Workout Zone logo" /></a>
+          </div>
+        </div>
+        <div class="col-lg-10 col-6">
+          <button class="nav-toggle" aria-label="Toggle menu" aria-controls="primary-nav" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+          <nav class="nav-menu">
+            <ul id="primary-nav">
+              <li class="active"><a href="#home">Home</a></li>
+              <li><a href="#why">Why Us</a></li>
+              <li><a href="#classes">Classes</a></li>
+              <li><a href="#gallery">Gallery</a></li>
+              <li><a href="#facilities">Facilities</a></li>
+              <li><a href="#team">Team</a></li>
+              <li><a href="#pricing">Pricing</a></li>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="#trial">Free Trial</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section id="home" class="hero-banner">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 col-md-8">
+          <div class="hi-text">
+            <span>Welcome to</span>
+            <h1>Workout Zone</h1>
+            <p>Your neighborhood gym for real results.</p>
+            <div class="d-flex align-items-center" style="gap:10px; flex-wrap:wrap;">
+              <a href="#classes" class="primary-btn">Explore Classes</a>
+              <a href="#pricing" class="secondary-btn">View Pricing</a>
+            </div>
+            <div class="hero-badges">
+              <div class="badge"><i class="fa fa-check"></i> Certified Trainers</div>
+              <div class="badge"><i class="fa fa-clock-o"></i> Flexible Hours</div>
+              <div class="badge"><i class="fa fa-star"></i> Member Rated 4.8/5</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="mouse"></div>
+      <div>SCROLL</div>
+    </div>
+  </section>
+
+  <!-- Facilities -->
+  <section id="facilities" class="spad">
+    <div class="container">
+      <div class="section-title text-center">
+        <span>Everything you need</span>
+        <h2>Facilities</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="facility reveal-up" style="--delay:100ms;">
+            <div class="icon-chip"><i class="fa fa-shower"></i></div>
+            <div><h6>Showers & Lockers</h6><p>Clean, secure, and convenient for your routine.</p></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="facility reveal-up" style="--delay:200ms;">
+            <div class="icon-chip"><i class="fa fa-wifi"></i></div>
+            <div><h6>Free Wi‑Fi</h6><p>Stay connected while you train.</p></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="facility reveal-up" style="--delay:300ms;">
+            <div class="icon-chip"><i class="fa fa-coffee"></i></div>
+            <div><h6>Refreshments</h6><p>Hydration and snacks available on-site.</p></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="facility reveal-up" style="--delay:400ms;">
+            <div class="icon-chip"><i class="fa fa-car"></i></div>
+            <div><h6>Parking</h6><p>On-site parking for members.</p></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="facility reveal-up" style="--delay:500ms;">
+            <div class="icon-chip"><i class="fa fa-medkit"></i></div>
+            <div><h6>First Aid</h6><p>Safety-first with trained staff.</p></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="facility reveal-up" style="--delay:600ms;">
+            <div class="icon-chip"><i class="fa fa-lock"></i></div>
+            <div><h6>Secure Access</h6><p>Member-only entry and CCTV coverage.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trial CTA -->
+  <section id="trial" class="spad">
+    <div class="container">
+      <div class="trial-cta reveal-up" style="--delay:100ms;">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h3>Book your FREE trial session</h3>
+            <p>Experience Workout Zone — meet our trainers, explore the gym, and try a class.</p>
+          </div>
+          <div class="col-lg-4 text-lg-right mt-3 mt-lg-0">
+            <a href="#contact" class="cta-btn">Book Now</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Us -->
+  <section id="why" class="choseus-section spad">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="section-title">
+            <span>Why choose us?</span>
+            <h2>Push your limits forward</h2>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-3 col-sm-6">
+          <div class="cs-item">
+            <span class="flaticon-034-stationary-bike"></span>
+            <h4>Modern equipment</h4>
+            <p>Fresh, well-maintained machines and free weights.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+          <div class="cs-item">
+            <span class="flaticon-033-juice"></span>
+            <h4>Nutrition guidance</h4>
+            <p>Simple plans to support your goals.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+          <div class="cs-item">
+            <span class="flaticon-002-dumbell"></span>
+            <h4>Pro training</h4>
+            <p>Certified trainers focused on you.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+          <div class="cs-item">
+            <span class="flaticon-014-heart-beat"></span>
+            <h4>Tailored programs</h4>
+            <p>Workouts built around your needs.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Classes (teaser) -->
+  <section id="classes" class="classes-section spad reveal-up" style="--delay:0ms;">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="section-title">
+            <span>Our Classes</span>
+            <h2>What we offer</h2>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-4 col-md-6">
+          <div class="class-item reveal-up" style="--delay:100ms;">
+            <div class="ci-pic"><img src="img/classes/class-1.jpg" alt="Weightlifting" /></div>
+            <div class="ci-text"><span>Strength</span><h5>Weightlifting</h5></div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="class-item reveal-up" style="--delay:200ms;">
+            <div class="ci-pic"><img src="img/classes/class-2.jpg" alt="Indoor cycling" /></div>
+            <div class="ci-text"><span>Cardio</span><h5>Indoor cycling</h5></div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="class-item reveal-up" style="--delay:300ms;">
+            <div class="ci-pic"><img src="img/classes/class-5.jpg" alt="Boxing" /></div>
+            <div class="ci-text"><span>Training</span><h5>Boxing</h5></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Simple Gallery (no JS) -->
+  <section id="gallery" class="spad">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="section-title">
+            <span>Gallery</span>
+            <h2>Inside our gym</h2>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="gallery-card reveal-up" style="--delay:100ms;">
+            <img src="img/gallery/gallery-1.jpg" alt="Gym photo 1" />
+            <div class="overlay"><h5>Strength Zone</h5></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="gallery-card reveal-up" style="--delay:200ms;">
+            <img src="img/gallery/gallery-3.jpg" alt="Gym photo 2" />
+            <div class="overlay"><h5>Cardio Area</h5></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="gallery-card reveal-up" style="--delay:300ms;">
+            <img src="img/gallery/gallery-6.jpg" alt="Gym photo 3" />
+            <div class="overlay"><h5>Studio & Classes</h5></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team (static) -->
+  <section id="team" class="team-section spad">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="section-title">
+            <span>Our Team</span>
+            <h2>Train with experts</h2>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="ts-item set-bg" style="background-image:url('img/team/team-1.jpg');">
+            <div class="ts_text"><h4>Alex Carter</h4><span>Trainer</span></div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="ts-item set-bg" style="background-image:url('img/team/team-2.jpg');">
+            <div class="ts_text"><h4>Sara Lee</h4><span>Trainer</span></div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="ts-item set-bg" style="background-image:url('img/team/team-3.jpg');">
+            <div class="ts_text"><h4>Michael Chen</h4><span>Trainer</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Quick Stats -->
+  <section class="spad" id="stats">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-6 col-md-3 mb-4 reveal-up" style="--delay:100ms;">
+          <div><i class="fa fa-users" style="font-size:28px;color:#0891b2"></i></div>
+          <div class="stat-number" data-target="1200" style="font-size:32px; font-weight:800;">0</div>
+          <div style="opacity:.8;">Active Members</div>
+        </div>
+        <div class="col-6 col-md-3 mb-4 reveal-up" style="--delay:200ms;">
+          <div><i class="fa fa-heartbeat" style="font-size:28px;color:#0891b2"></i></div>
+          <div class="stat-number" data-target="45" style="font-size:32px; font-weight:800;">0</div>
+          <div style="opacity:.8;">Classes Weekly</div>
+        </div>
+        <div class="col-6 col-md-3 mb-4 reveal-up" style="--delay:300ms;">
+          <div><i class="fa fa-smile-o" style="font-size:28px;color:#0891b2"></i></div>
+          <div class="stat-number" data-target="98" style="font-size:32px; font-weight:800;">0</div>
+          <div style="opacity:.8;">Satisfaction %</div>
+        </div>
+        <div class="col-6 col-md-3 mb-4 reveal-up" style="--delay:400ms;">
+          <div><i class="fa fa-trophy" style="font-size:28px;color:#0891b2"></i></div>
+          <div class="stat-number" data-target="12" style="font-size:32px; font-weight:800;">0</div>
+          <div style="opacity:.8;">Certified Trainers</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="spad" id="testimonials">
+    <div class="container">
+      <div class="section-title text-center">
+        <span>What members say</span>
+        <h2>Testimonials</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-4 mb-4 reveal-up" style="--delay:100ms;">
+          <div class="p-4" style="background:#fff;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.08);height:100%;">
+            <p>“Love the vibe and trainers. I finally stuck to a routine and feel amazing.”</p>
+            <div class="d-flex align-items-center mt-3">
+              <img src="img/testimonial/testimonial-1.jpg" alt="Member" style="width:44px;height:44px;border-radius:50%;object-fit:cover;margin-right:10px;">
+              <div><strong>Priya Sharma</strong><br><small>Member</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4 reveal-up" style="--delay:200ms;">
+          <div class="p-4" style="background:#fff;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.08);height:100%;">
+            <p>“Clean equipment and flexible timings. The boxing classes are a blast!”</p>
+            <div class="d-flex align-items-center mt-3">
+              <img src="img/testimonial/testimonial-2.jpg" alt="Member" style="width:44px;height:44px;border-radius:50%;object-fit:cover;margin-right:10px;">
+              <div><strong>Rohan Mehta</strong><br><small>Member</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4 reveal-up" style="--delay:300ms;">
+          <div class="p-4" style="background:#fff;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.08);height:100%;">
+            <p>“Personalized plans helped me reach my goals faster than I expected.”</p>
+            <div class="d-flex align-items-center mt-3">
+              <img src="img/team/team-4.jpg" alt="Member" style="width:44px;height:44px;border-radius:50%;object-fit:cover;margin-right:10px;">
+              <div><strong>Anita Verma</strong><br><small>Member</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing (3 plans) -->
+  <section id="pricing" class="pricing-section spad">
+    <div class="container">
+      <div class="section-title text-center">
+        <span>Our Plans</span>
+        <h2>Choose your pricing</h2>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-4 col-md-6 mb-4 reveal-up" style="--delay:100ms;">
+          <div class="ps-item" style="border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.08);">
+            <h3>Starter</h3>
+            <div class="pi-price"><h2>₹ 2,399</h2><span>per month</span></div>
+            <ul>
+              <li>Gym access</li>
+              <li>Locker</li>
+              <li>Email support</li>
+              <li class="hazy">No classes included</li>
+            </ul>
+            <a href="#contact" class="primary-btn pricing-btn">Get Started</a>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4 reveal-up" style="--delay:200ms;">
+          <div class="ps-item" style="border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.1);">
+            <h3>Popular</h3>
+            <div class="pi-price"><h2>₹ 4,899</h2><span>per month</span></div>
+            <ul>
+              <li>All-day access</li>
+              <li>Group classes</li>
+              <li>1 PT session/month</li>
+              <li>Nutrition tips</li>
+            </ul>
+            <a href="#contact" class="primary-btn pricing-btn">Join Now</a>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4 reveal-up" style="--delay:300ms;">
+          <div class="ps-item" style="border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.08);">
+            <h3>Pro</h3>
+            <div class="pi-price"><h2>₹ 7,399</h2><span>per month</span></div>
+            <ul>
+              <li>24/7 access</li>
+              <li>Unlimited classes</li>
+              <li>4 PT sessions/month</li>
+              <li>Personalized plan</li>
+            </ul>
+            <a href="#contact" class="primary-btn pricing-btn">Go Pro</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ accordion (CSS-only minimal) -->
+  <section id="faq" class="spad">
+    <div class="container">
+      <div class="section-title text-center">
+        <span>Got questions?</span>
+        <h2>FAQ</h2>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="mb-3 reveal-up" style="--delay:100ms;">
+            <details style="background:#fff;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.06); padding:16px;">
+              <summary style="cursor:pointer;font-weight:600;">Do you offer trial classes?</summary>
+              <div style="padding-top:10px; opacity:.9;">Yes, contact us to book a free trial session for selected classes.</div>
+            </details>
+          </div>
+          <div class="mb-3 reveal-up" style="--delay:200ms;">
+            <details style="background:#fff;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.06); padding:16px;">
+              <summary style="cursor:pointer;font-weight:600;">What are your operating hours?</summary>
+              <div style="padding-top:10px; opacity:.9;">We’re open 6 AM – 10 PM on weekdays, 7 AM – 8 PM on weekends.</div>
+            </details>
+          </div>
+          <div class="mb-3 reveal-up" style="--delay:300ms;">
+            <details style="background:#fff;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.06); padding:16px;">
+              <summary style="cursor:pointer;font-weight:600;">Do you provide personal training?</summary>
+              <div style="padding-top:10px; opacity:.9;">Absolutely — our certified trainers can build a plan tailored to you.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact highlight -->
+  <div id="contact" class="gettouch-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="gt-text"><i class="fa fa-map-marker"></i><p>333 Middle Winchendon Rd, Rindge, NH 03461</p></div>
+        </div>
+        <div class="col-md-4">
+          <div class="gt-text"><i class="fa fa-mobile"></i><ul><li>125-711-811</li><li>125-668-886</li></ul></div>
+        </div>
+        <div class="col-md-4">
+          <div class="gt-text email"><i class="fa fa-envelope"></i><p>Support.gymcenter@gmail.com</p></div>
+        </div>
+      </div>
+      <div class="row contact-wrap">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <iframe class="map-embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=333%20Middle%20Winchendon%20Rd%2C%20Rindge%2C%20NH%2003461&output=embed" allowfullscreen></iframe>
+        </div>
+        <div class="col-lg-6">
+          <div class="section-title" style="margin-bottom:14px;">
+            <span>Get in touch</span>
+            <h2 style="margin:0; font-size: clamp(22px,3.2vw,32px);">Contact form</h2>
+          </div>
+          <form class="contact-form" action="#" method="post">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Your name" required>
+              </div>
+              <div class="form-group col-md-6">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="tel" class="form-control" id="phone" name="phone" placeholder="Your phone number">
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea class="form-control" id="message" name="message" placeholder="How can we help?" required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Send Message</button>
+            <small class="d-block mt-2" style="opacity:.8;">Demo only — form submission backend not yet configured.</small>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer (kept simple) -->
+  <section class="footer-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="fs-about">
+            <div class="fa-logo"><a href="#home"><img src="img/logo.png" alt="Workout Zone logo" /></a></div>
+            <p>Workout Zone — where health, beauty and fitness meet.</p>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="fa-social text-lg-right">
+            <a href="#"><i class="fa fa-facebook"></i></a>
+            <a href="#"><i class="fa fa-twitter"></i></a>
+            <a href="#"><i class="fa fa-youtube-play"></i></a>
+            <a href="#"><i class="fa fa-instagram"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12 text-center">
+          <small>&copy; <script>document.write(new Date().getFullYear());</script> Workout Zone. All rights reserved.</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightweight reveal-on-scroll (no deps) -->
+  <script>
+    (function(){
+      const items = document.querySelectorAll('.reveal-up');
+      if (!('IntersectionObserver' in window)) { items.forEach(el=>el.classList.add('in-view')); return; }
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach((e)=>{
+          if (e.isIntersecting) {
+            e.target.classList.add('in-view');
+            io.unobserve(e.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+      items.forEach((el)=> io.observe(el));
+    })();
+      // Mobile nav toggle
+      (function(){
+        const btn = document.querySelector('.nav-toggle');
+        const list = document.getElementById('primary-nav');
+        if (!btn || !list) return;
+        const toggle = () => {
+          const open = document.body.classList.toggle('nav-open');
+          btn.setAttribute('aria-expanded', String(open));
+        };
+        btn.addEventListener('click', toggle);
+        // Close on link click (use capture to handle fast taps)
+        list.addEventListener('click', (e) => {
+          const a = e.target.closest('a');
+          if (a && document.body.classList.contains('nav-open')) {
+            document.body.classList.remove('nav-open');
+            btn.setAttribute('aria-expanded', 'false');
+          }
+        }, true);
+      })();
+    // Simple counter animation for stats
+    (function(){
+      const counters = document.querySelectorAll('.stat-number');
+      const animate = (el)=>{
+        const target = parseInt(el.getAttribute('data-target'), 10) || 0;
+        const duration = 1200; const start = performance.now();
+        const startVal = 0;
+        const tick = (now)=>{
+          const p = Math.min((now - start)/duration, 1);
+          const val = Math.floor(startVal + (target - startVal) * (0.5 - Math.cos(Math.PI*p)/2));
+          el.textContent = val;
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      };
+      const io = new IntersectionObserver((entries, obs)=>{
+        entries.forEach(e=>{ if (e.isIntersecting) { animate(e.target); obs.unobserve(e.target);} });
+      }, { threshold: 0.3 });
+      counters.forEach(c=> io.observe(c));
+    })();
+    // (Header scroll-spy removed per revert request)
+  </script>
+</body>
+</html>

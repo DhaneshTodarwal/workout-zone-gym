@@ -1,0 +1,17 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Source archives (not needed for deployment)
+Source/
+
+# Temporary files
+*.log
+*.tmp
